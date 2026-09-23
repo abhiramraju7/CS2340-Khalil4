@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'admin_panel/_nav.html' %}
+
+<p class="text-muted">
+    This queue shows every posting, including removed ones. Removals are
+    reversible &mdash; a removed posting leaves the public listings but stays
+    in the database with its reason attached.
+</p>
+
+<form method="GET" class="row g-2 mb-3">
+    <div class="col-md-6">
+        <input type="text" name="search" class="form-control" placeholder="Search title or company"
+            value="{{ template_data.search }}">
+    </div>
+    <div class="col-md-4">
+        <select name="status" class="form-select">
+            <option value="">All statuses</option>
+            {% for value, label in template_data.status_choices %}
+            <option value="{{ value }}" {% if template_data.status == value %}selected{% endif %}>
+                {{ label }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-dark w-100">Filter</button>
+    </div>
+</form>
+
+{% for job in template_data.page %}
+<div class="card mb-2">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h2 class="h5 mb-1">{{ job.title }}</h2>
+                <p class="text-muted small mb-2">
+                    {{ job.company }}{% if job.location %} &middot; {{ job.location }}{% endif %}
+                    &middot; posted by {{ job.posted_by.username }}
+                </p>
+            </div>
+            {% if job.status == 'ACTIVE' %}
+            <span class="badge text-bg-success">Active</span>
+            {% elif job.status == 'FLAGGED' %}
+            <span class="badge text-bg-warning">Flagged</span>
+            {% else %}
+            <span class="badge text-bg-danger">Removed</span>
+            {% endif %}
+        </div>
+
+        {% if job.removal_reason %}
+        <p class="small text-danger mb-2">Removal reason: {{ job.removal_reason }}</p>
+        {% endif %}
+
+        {% if job.status == 'REMOVED' %}
+        <form method="POST" action="{% url 'admin_panel.restore_job' job.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-success">Restore posting</button>
+        </form>
+        {% else %}
+        <div class="row g-2">
+            {% if job.status == 'ACTIVE' %}
+            <div class="col-auto">
+                <form method="POST" action="{% url 'admin_panel.flag_job' job.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-warning">Flag for review</button>
+                </form>
+            </div>
+            {% endif %}
+            <div class="col">
+                <form method="POST" action="{% url 'admin_panel.remove_job' job.id %}" class="d-flex gap-2">
+                    {% csrf_token %}
+                    <input type="text" name="reason" class="form-control form-control-sm"
+                        placeholder="Reason for removal (required)" required>
+                    <button type="submit" class="btn btn-sm btn-danger text-nowrap">Remove</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% empty %}
+<p class="text-muted">No job postings match those filters.</p>
+{% endfor %}
+
+{% if template_data.page.has_other_pages %}
+<nav>
+    <ul class="pagination">
+        {% if template_data.page.has_previous %}
+        <li class="page-item">
+            <a class="page-link"
+                href="?page={{ template_data.page.previous_page_number }}&search={{ template_data.search }}&status={{ template_data.status }}">Previous</a>
+        </li>
+        {% endif %}
+        <li class="page-item disabled">
+            <span class="page-link">
+                Page {{ template_data.page.number }} of {{ template_data.page.paginator.num_pages }}
+            </span>
+        </li>
+        {% if template_data.page.has_next %}
+        <li class="page-item">
+            <a class="page-link"
+                href="?page={{ template_data.page.next_page_number }}&search={{ template_data.search }}&status={{ template_data.status }}">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock content %}

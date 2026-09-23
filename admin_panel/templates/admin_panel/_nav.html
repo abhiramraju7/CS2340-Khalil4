@@ -1,0 +1,23 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Management</h1>
+    <span class="text-muted small">Signed in as {{ user.username }}</span>
+</div>
+
+<ul class="nav nav-pills mb-4">
+    <li class="nav-item">
+        <a class="nav-link {% if template_data.section == 'dashboard' %}active{% endif %}"
+            href="{% url 'admin_panel.dashboard' %}">Overview</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if template_data.section == 'users' %}active{% endif %}"
+            href="{% url 'admin_panel.user_list' %}">Users &amp; Roles</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if template_data.section == 'jobs' %}active{% endif %}"
+            href="{% url 'admin_panel.job_list' %}">Job Postings</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if template_data.section == 'audit' %}active{% endif %}"
+            href="{% url 'admin_panel.audit_list' %}">Audit Log</a>
+    </li>
+</ul>

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Jobs</h1>
+<p class="text-muted">
+    Public listing &mdash; uses <code>Job.objects.visible()</code>, so
+    administrator-removed postings never appear here.
+</p>
+
+<ul class="list-group">
+    {% for job in template_data.jobs %}
+    <li class="list-group-item">
+        <strong>{{ job.title }}</strong> &mdash; {{ job.company }}
+        {% if job.status == 'FLAGGED' %}
+        <span class="badge text-bg-warning">Flagged</span>
+        {% endif %}
+    </li>
+    {% empty %}
+    <li class="list-group-item text-muted">No job postings yet.</li>
+    {% endfor %}
+</ul>
+{% endblock content %}
