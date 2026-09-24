@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'admin_panel/_nav.html' %}
+
+<form method="GET" class="row g-2 mb-3">
+    <div class="col-md-5">
+        <input type="text" name="search" class="form-control" placeholder="Search username or email"
+            value="{{ template_data.search }}">
+    </div>
+    <div class="col-md-3">
+        <select name="role" class="form-select">
+            <option value="">All roles</option>
+            {% for value, label in template_data.role_choices %}
+            <option value="{{ value }}" {% if template_data.role == value %}selected{% endif %}>
+                {{ label }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="standing" class="form-select">
+            <option value="">Any standing</option>
+            <option value="active" {% if template_data.standing == 'active' %}selected{% endif %}>Active</option>
+            <option value="suspended" {% if template_data.standing == 'suspended' %}selected{% endif %}>Suspended
+            </option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-dark w-100">Filter</button>
+    </div>
+</form>
+
+<table class="table table-hover bg-white align-middle">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Standing</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for account in template_data.page %}
+        <tr>
+            <td>{{ account.username }}</td>
+            <td class="text-muted">{{ account.email|default:'&mdash;' }}</td>
+            <td>{{ account.profile.get_role_display }}</td>
+            <td>
+                {% if account.profile.is_suspended %}
+                <span class="badge text-bg-danger">Suspended</span>
+                {% else %}
+                <span class="badge text-bg-success">Active</span>
+                {% endif %}
+            </td>
+            <td class="text-end">
+                <a class="btn btn-sm btn-outline-dark"
+                    href="{% url 'admin_panel.user_detail' account.id %}">Manage</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="text-muted">No users match those filters.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if template_data.page.has_other_pages %}
+<nav>
+    <ul class="pagination">
+        {% if template_data.page.has_previous %}
+        <li class="page-item">
+            <a class="page-link"
+                href="?page={{ template_data.page.previous_page_number }}&search={{ template_data.search }}&role={{ template_data.role }}&standing={{ template_data.standing }}">
+                Previous
+            </a>
+        </li>
+        {% endif %}
+        <li class="page-item disabled">
+            <span class="page-link">
+                Page {{ template_data.page.number }} of {{ template_data.page.paginator.num_pages }}
+            </span>
+        </li>
+        {% if template_data.page.has_next %}
+        <li class="page-item">
+            <a class="page-link"
+                href="?page={{ template_data.page.next_page_number }}&search={{ template_data.search }}&role={{ template_data.role }}&standing={{ template_data.standing }}">
+                Next
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock content %}

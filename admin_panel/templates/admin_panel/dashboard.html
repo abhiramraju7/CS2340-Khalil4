@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'admin_panel/_nav.html' %}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h2 class="h5 card-title">Users</h2>
+                <ul class="list-unstyled mb-2">
+                    {% for label, count in template_data.role_counts %}
+                    <li class="d-flex justify-content-between border-bottom py-1">
+                        <span>{{ label }}</span><strong>{{ count }}</strong>
+                    </li>
+                    {% endfor %}
+                    <li class="d-flex justify-content-between py-1 text-danger">
+                        <span>Suspended</span>
+                        <strong>{{ template_data.suspended_count }}</strong>
+                    </li>
+                </ul>
+                <a class="btn btn-sm btn-outline-dark" href="{% url 'admin_panel.user_list' %}">
+                    Manage users
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h2 class="h5 card-title">Job Postings</h2>
+                <ul class="list-unstyled mb-2">
+                    {% for label, count in template_data.status_counts %}
+                    <li class="d-flex justify-content-between border-bottom py-1">
+                        <span>{{ label }}</span><strong>{{ count }}</strong>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <a class="btn btn-sm btn-outline-dark" href="{% url 'admin_panel.job_list' %}">
+                    Moderate postings
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h2 class="h5 card-title">Recent administrator actions</h2>
+
+        <ul class="list-group list-group-flush">
+            {% for entry in template_data.recent_actions %}
+            <li class="list-group-item px-0">
+                <strong>{{ entry.get_action_display }}</strong>
+                &mdash; {{ entry.target_label }}
+                <span class="text-muted small">
+                    by {{ entry.actor.username|default:'(deleted user)' }}
+                    on {{ entry.created_at }}
+                </span>
+            </li>
+            {% empty %}
+            <li class="list-group-item px-0 text-muted">No actions recorded yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock content %}

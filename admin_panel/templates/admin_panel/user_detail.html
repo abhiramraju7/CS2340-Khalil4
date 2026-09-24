@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'admin_panel/_nav.html' %}
+
+<a class="btn btn-sm btn-link px-0 mb-2" href="{% url 'admin_panel.user_list' %}">
+    &larr; Back to all users
+</a>
+
+<div class="row g-3">
+    <div class="col-md-5">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h2 class="h4 card-title mb-1">{{ template_data.target.username }}</h2>
+                <p class="text-muted mb-3">{{ template_data.target.email|default:'No email on file' }}</p>
+
+                <p class="mb-1">
+                    <strong>Role:</strong> {{ template_data.target.profile.get_role_display }}
+                </p>
+                <p class="mb-3">
+                    <strong>Standing:</strong>
+                    {% if template_data.target.profile.is_suspended %}
+                    <span class="badge text-bg-danger">Suspended</span>
+                    {% if template_data.target.profile.suspension_reason %}
+                    <span class="text-muted small d-block mt-1">
+                        Reason: {{ template_data.target.profile.suspension_reason }}
+                    </span>
+                    {% endif %}
+                    {% else %}
+                    <span class="badge text-bg-success">Active</span>
+                    {% endif %}
+                </p>
+
+                <hr>
+
+                <form method="POST" action="{% url 'admin_panel.change_role' template_data.target.id %}"
+                    class="mb-3">
+                    {% csrf_token %}
+                    <label class="form-label fw-semibold">Change role</label>
+                    {{ template_data.form.role }}
+                    <button type="submit" class="btn btn-dark btn-sm mt-2">Update role</button>
+                </form>
+
+                <form method="POST" action="{% url 'admin_panel.toggle_suspend' template_data.target.id %}">
+                    {% csrf_token %}
+                    {% if template_data.target.profile.is_suspended %}
+                    <button type="submit" class="btn btn-success btn-sm">Reinstate account</button>
+                    {% else %}
+                    <label class="form-label fw-semibold">Suspend account</label>
+                    <input type="text" name="reason" class="form-control mb-2" placeholder="Reason (optional)">
+                    <button type="submit" class="btn btn-danger btn-sm">Suspend account</button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h3 class="h5 card-title">Job postings by this user</h3>
+                <ul class="list-group list-group-flush">
+                    {% for job in template_data.posted_jobs %}
+                    <li class="list-group-item px-0 d-flex justify-content-between">
+                        <span>{{ job.title }} &mdash; {{ job.company }}</span>
+                        <span class="badge text-bg-secondary">{{ job.get_status_display }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item px-0 text-muted">None.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h3 class="h5 card-title">Administrator actions on this account</h3>
+                <ul class="list-group list-group-flush">
+                    {% for entry in template_data.history %}
+                    <li class="list-group-item px-0">
+                        <strong>{{ entry.get_action_display }}</strong>
+                        {% if entry.reason %}
+                        <span class="text-muted">&mdash; {{ entry.reason }}</span>
+                        {% endif %}
+                        <span class="text-muted small d-block">
+                            by {{ entry.actor.username|default:'(deleted user)' }}
+                            on {{ entry.created_at }}
+                        </span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item px-0 text-muted">No actions recorded.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

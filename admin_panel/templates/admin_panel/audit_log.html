@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'admin_panel/_nav.html' %}
+
+<form method="GET" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <select name="action" class="form-select">
+            <option value="">All actions</option>
+            {% for value, label in template_data.action_choices %}
+            <option value="{{ value }}" {% if template_data.action == value %}selected{% endif %}>
+                {{ label }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-dark w-100">Filter</button>
+    </div>
+</form>
+
+<table class="table table-sm bg-white align-middle">
+    <thead>
+        <tr>
+            <th>When</th>
+            <th>Administrator</th>
+            <th>Action</th>
+            <th>Target</th>
+            <th>Detail</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in template_data.page %}
+        <tr>
+            <td class="text-muted small text-nowrap">{{ entry.created_at }}</td>
+            <td>{{ entry.actor.username|default:'(deleted user)' }}</td>
+            <td>{{ entry.get_action_display }}</td>
+            <td>{{ entry.get_target_type_display }}: {{ entry.target_label }}</td>
+            <td class="text-muted small">{{ entry.reason|default:'&mdash;' }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="text-muted">No actions recorded yet.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock content %}
