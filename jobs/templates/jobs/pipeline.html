@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Applicants for {{ job.title }}</h1>
+<p class="text-muted">{{ job.company }}</p>
+
+<div class="list-group">
+    {% for application in applications %}
+    <div class="list-group-item">
+        <div class="d-flex justify-content-between align-items-start gap-3">
+            <div>
+                <strong>{{ application.applicant.username }}</strong>
+                <span class="badge text-bg-secondary">{{ application.get_status_display }}</span>
+                {% if application.cover_note %}<p class="mb-0 mt-2">{{ application.cover_note }}</p>{% endif %}
+            </div>
+            <form method="post" action="{% url 'jobs.application_status' application.id %}" class="d-flex gap-2">
+                {% csrf_token %}
+                <select name="status" class="form-select form-select-sm">
+                    {% for value, label in application.STATUS_CHOICES %}
+                    <option value="{{ value }}" {% if application.status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-outline-primary btn-sm" type="submit">Update</button>
+            </form>
+        </div>
+    </div>
+    {% empty %}
+    <div class="list-group-item text-muted">No applications have been submitted yet.</div>
+    {% endfor %}
+</div>
+{% endblock content %}
