@@ -22,6 +22,9 @@
             <div class="navbar-nav ms-auto">
                 <a class="nav-link" href="{% url 'jobs.index' %}">Jobs</a>
                 {% if user.is_authenticated %}
+                {% if user.profile.is_recruiter %}
+                <a class="nav-link" href="{% url 'jobs.my_listings' %}">My Listings</a>
+                {% endif %}
                 {% if user.is_superuser or user.profile.role == 'ADMIN' %}
                 <a class="nav-link" href="{% url 'admin_panel.dashboard' %}">Manage</a>
                 {% endif %}
