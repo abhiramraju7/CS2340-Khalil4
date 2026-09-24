@@ -33,6 +33,7 @@ class Job(models.Model):
         related_name='posted_jobs',
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     # --- moderation contract, owned by admin_panel ---
     status = models.CharField(
