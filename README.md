@@ -7,14 +7,15 @@ keep the platform fair and free of spam.
 ## Setup
 
 ```sh
-python3.12 -m venv venv
+python3.10 -m venv venv
 ./venv/bin/pip install -r requirements.txt
 ./venv/bin/python manage.py migrate
 ./venv/bin/python manage.py seed_demo      # demo users + job postings
 ./venv/bin/python manage.py runserver
 ```
 
-Requires Python 3.10+ (Django 5.0). The macOS system Python 3.9 is too old.
+Requires Python 3.10+ (Django 5.0). Python 3.14 is not compatible with Django
+5.0, and the macOS system Python 3.9 is too old.
 
 ## Apps
 
