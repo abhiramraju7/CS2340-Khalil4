@@ -8,6 +8,7 @@ urlpatterns = [
     path('', include('home.urls')),
     path('accounts/', include('accounts.urls')),
     path('jobs/', include('jobs.urls')),
+    path('messages/', include('messaging.urls')),
     path('manage/', include('admin_panel.urls')),
 ]
 
