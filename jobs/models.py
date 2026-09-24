@@ -61,3 +61,34 @@ class Job(models.Model):
     @property
     def is_removed(self):
         return self.status == Job.STATUS_REMOVED
+
+
+class Application(models.Model):
+    STATUS_SUBMITTED = 'SUBMITTED'
+    STATUS_REVIEWING = 'REVIEWING'
+    STATUS_INTERVIEW = 'INTERVIEW'
+    STATUS_REJECTED = 'REJECTED'
+    STATUS_HIRED = 'HIRED'
+    STATUS_CHOICES = [
+        (STATUS_SUBMITTED, 'Submitted'),
+        (STATUS_REVIEWING, 'Reviewing'),
+        (STATUS_INTERVIEW, 'Interview'),
+        (STATUS_REJECTED, 'Rejected'),
+        (STATUS_HIRED, 'Hired'),
+    ]
+
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='applications')
+    applicant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='applications')
+    cover_note = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_SUBMITTED)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(fields=['job', 'applicant'], name='one_application_per_job_seeker'),
+        ]
+
+    def __str__(self):
+        return self.applicant.username + ' - ' + self.job.title
