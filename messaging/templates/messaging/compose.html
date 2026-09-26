@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Message a candidate</h1>
+<form method="post" class="card card-body">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div>
+        <button class="btn btn-primary" type="submit">Send message</button>
+        <a class="btn btn-link" href="{% url 'messaging.inbox' %}">Cancel</a>
+    </div>
+</form>
+{% endblock content %}
